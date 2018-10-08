@@ -132,7 +132,6 @@ Serves to pass transitive information about externally built artifacts up the de
 Can not be used as a top-level provider.
 Instances of ForeignCcArtifact are incapsulated in a depset ForeignCcDeps#artifacts.""",
     fields = {
-        "gen_dir": "Install directory",
         "bin_dir_name": "Bin directory, relative to install directory",
         "lib_dir_name": "Lib directory, relative to install directory",
         "include_dir_name": "Include directory, relative to install directory",
