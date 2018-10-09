@@ -234,6 +234,8 @@ def cc_external_rule_impl(ctx, attrs):
 
     script_text = "\n".join(script_lines)
     print("script text: " + script_text)
+    print("PATH1:" + outputs.installdir.path)
+    print("PATH1:" + outputs.installdir.basename)
 
     execution_requirements = {"block-network": ""}
 
