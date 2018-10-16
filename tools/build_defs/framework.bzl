@@ -530,8 +530,8 @@ def _get_headers(compilation_info):
     )
 
 def _define_out_cc_info(ctx, attrs, inputs, outputs):
-    print(attrs.linkopts)
-    print(outputs.libraries)
+    print("linkopts" + attrs.linkopts)
+    print("output_libs" + outputs.libraries)
     compilation_info = CcCompilationInfo(
         headers = depset([outputs.out_include_dir]),
         system_includes = depset([outputs.out_include_dir.path]),
