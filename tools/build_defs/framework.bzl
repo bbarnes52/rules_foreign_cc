@@ -539,11 +539,10 @@ def _define_out_cc_info(ctx, attrs, inputs, outputs):
         cc_compilation_infos = [inputs.deps_compilation_info, compilation_info],
     )
     
-    if not attrs.headers_only:
-        linking_info = create_linking_info(ctx, depset(direct = attrs.linkopts), outputs.libraries)
-        out_linking_info = cc_common.merge_cc_linking_infos(
-            cc_linking_infos = [linking_info, inputs.deps_linking_info],
-        )
+    linking_info = create_linking_info(ctx, depset(direct = attrs.linkopts), outputs.libraries)
+    out_linking_info = cc_common.merge_cc_linking_infos(
+        cc_linking_infos = [linking_info, inputs.deps_linking_info],
+    )
 
     return struct(
         compilation_info = out_compilation_info,
