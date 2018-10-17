@@ -103,8 +103,8 @@ def _build_shared_library_to_link(ctx, library, cc_toolchain, targets_windows):
     else:
         return cc_common.create_symlink_library_to_link(
             ctx = ctx,
-            artifact_category = "dynamic_library",
             library = library,
+            cc_toolchain = cc_toolchain,
         )
 
 def _build_interface_library_to_link(ctx, library, cc_toolchain, targets_windows):
@@ -120,8 +120,8 @@ def _build_interface_library_to_link(ctx, library, cc_toolchain, targets_windows
     else:
         return cc_common.create_symlink_library_to_link(
             ctx = ctx,
-            artifact_category = "interface_library",
             library = library,
+            cc_toolchain = cc_toolchain,
         )
 
 # we could possibly take a decision about linking interface/shared library beased on each library name
