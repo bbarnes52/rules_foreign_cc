@@ -104,6 +104,7 @@ def _build_shared_library_to_link(ctx, library, cc_toolchain, targets_windows):
         return cc_common.create_library_to_link(
             ctx = ctx,
             cc_toolchain = cc_toolchain,
+            artifact_category = "dynamic_library",
             library = library,
         )
 
@@ -121,6 +122,7 @@ def _build_interface_library_to_link(ctx, library, cc_toolchain, targets_windows
         return cc_common.create_library_to_link(
             ctx = ctx,
             cc_toolchain = cc_toolchain,
+            artifact_category = "interface_library",
             library = library,
         )
 
