@@ -330,7 +330,7 @@ def _copy_deps_and_tools(files):
     lines += _symlink_to_dir("bin", files.tools_files, False)
 
     for ext_dir in files.ext_build_dirs:
-        lines += ["_symlink_to_dir $EXT_BUILD_ROOT/{} $EXT_BUILD_DEPS".format(_file_path(ext_dir))]
+        lines += ["symlink_contents_to_dir $EXT_BUILD_ROOT/{} $EXT_BUILD_DEPS".format(_file_path(ext_dir))]
 
     lines += ["if [ -d $EXT_BUILD_DEPS/bin ]; then"]
 
