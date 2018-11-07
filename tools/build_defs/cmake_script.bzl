@@ -5,7 +5,6 @@ load(":cc_toolchain_util.bzl", "absolutize_path_in_str")
 def create_cmake_script(
         command,
         workspace_name,
-        target_os,
         tools,
         flags,
         install_prefix,
@@ -19,7 +18,6 @@ def create_cmake_script(
       Args:
         command: executable to run, e.g. `cmake` or `ninja`.
         workspace_name - current workspace name
-        target_os - OSInfo with target operating system information, used for CMAKE_SYSTEM_NAME in
     CMake toolchain file
         tools - cc_toolchain tools (CxxToolsInfo)
         flags - cc_toolchain flags (CxxFlagsInfo)
@@ -32,7 +30,7 @@ def create_cmake_script(
 """
     merged_prefix_path = _merge_prefix_path(user_cache)
 
-    toolchain_dict = _fill_crossfile_from_toolchain(workspace_name, target_os, tools, flags)
+    toolchain_dict = _fill_crossfile_from_toolchain(workspace_name, tools, flags)
     params = None
     if no_toolchain_file:
         params = _create_cache_entries_env_vars(toolchain_dict, user_cache, user_env)
@@ -179,12 +177,8 @@ def _move_dict_values(target, source, descriptor_map):
 def _merge(str1, str2):
     return str1.strip("\"'") + " " + str2.strip("\"'")
 
-def _fill_crossfile_from_toolchain(workspace_name, target_os, tools, flags):
+def _fill_crossfile_from_toolchain(workspace_name, tools, flags):
     os_name = "Linux"
-    if target_os.is_win:
-        os_name = "Windows"
-    if target_os.is_osx:
-        os_name = "Apple"
     dict = {
         "CMAKE_SYSTEM_NAME": os_name,
     }
