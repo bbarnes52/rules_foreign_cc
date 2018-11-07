@@ -1,9 +1,9 @@
 """ Contains all logic for calling CMake for building external libraries/binaries """
 
-load("@foreign_cc_platform_utils//:tools.bzl", "CMAKE_COMMAND")
 load(":cc_toolchain_util.bzl", "absolutize_path_in_str")
 
 def create_cmake_script(
+        command,
         workspace_name,
         target_os,
         tools,
@@ -17,6 +17,7 @@ def create_cmake_script(
         is_debug_mode = True):
     """ Constructs CMake script to be passed to cc_external_rule_impl.
       Args:
+        command: executable to run, e.g. `cmake` or `ninja`.
         workspace_name - current workspace name
         target_os - OSInfo with target operating system information, used for CMAKE_SYSTEM_NAME in
     CMake toolchain file
@@ -50,7 +51,7 @@ def create_cmake_script(
     str_cmake_cache_entries = " ".join(["-D" + key + "=\"" + params.cache[key] + "\"" for key in params.cache])
     cmake_call = " ".join([
         set_env_vars,
-        CMAKE_COMMAND,
+        command,
         str_cmake_cache_entries,
         " ".join(options),
         "$EXT_BUILD_ROOT/" + root,

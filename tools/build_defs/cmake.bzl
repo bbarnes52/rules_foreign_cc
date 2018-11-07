@@ -45,6 +45,7 @@ def _create_configure_script(configureParameters):
 
     define_install_prefix = "export INSTALL_PREFIX=\"" + _get_install_prefix(ctx) + "\"\n"
     configure_script = create_cmake_script(
+        "cmake",
         ctx.workspace_name,
         ctx.attr._target_os[OSInfo],
         tools,
