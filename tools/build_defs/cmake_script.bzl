@@ -61,25 +61,13 @@ def create_cmake_script(
 
 # From CMake documentation: ;-list of directories specifying installation prefixes to be searched...
 def _merge_prefix_path(user_cache, deps_and_exports):
-    cmake_prefix_paths = ";".join(["$EXT_BUILD_DEPS/{}".format(_validate_dep(dep)) for dep in deps_and_exports])
+    cmake_prefix_paths = ";".join(["$EXT_BUILD_DEPS/{}".format(dep.label.name for dep in deps_and_exports])
     user_prefix = user_cache.get("CMAKE_PREFIX_PATH")
     if user_prefix != None:
         # remove it, it is gonna be merged specifically
         user_cache.pop("CMAKE_PREFIX_PATH")
         cmake_prefix_paths += ";" + user_prefix.strip("\"'")
     return cmake_prefix_paths + ";$EXT_BUILD_DEPS"
-
-def _validate_dep(dep):
-    print(dep)
-    if not dep.startswith("//third_party"):
-        fail("All deps must be referenced by their absolute path and live under third_party.")
-    if dep.endswith(":all"):
-        fail("Deps must be specified individually, the `:all` directive is not allowed.")
-    if dep.endswith("..."):
-        fail("Deps must be specified individually, the `...` directive is not allowed.")
-    if ":" in dep:
-        fail("Deps must not use :target notation.")
-    return dep.split("/")[-1]
 
 _CMAKE_ENV_VARS_FOR_CROSSTOOL = {
     "CC": struct(value = "CMAKE_C_COMPILER", replace = True),
