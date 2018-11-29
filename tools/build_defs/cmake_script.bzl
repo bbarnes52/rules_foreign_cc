@@ -70,6 +70,7 @@ def _merge_prefix_path(user_cache, deps_and_exports):
     return cmake_prefix_paths + ";$EXT_BUILD_DEPS"
 
 def _validate_dep(dep):
+    print(dep)
     if not dep.startswith("//third_party"):
         fail("All deps must be referenced by their absolute path and live under third_party.")
     if dep.endswith(":all"):
