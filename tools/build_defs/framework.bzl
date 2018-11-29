@@ -217,7 +217,7 @@ def cc_external_rule_impl(ctx, attrs):
     deps_and_exports_set = {}
     for dep in attrs.deps:
         for export in dep[ExportInfo].exports + [dep]:
-            export_id = ":".join(export.label.package, export.label.name)
+            export_id = ":".join([export.label.package, export.label.name])
             if not deps_and_exports_set.get(export_id):
                 deps_and_exports_set[export_id] = 1
                 deps_and_exports += [export]
