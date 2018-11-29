@@ -158,6 +158,7 @@ of the script, and allows to reuse the inputs structure, created by the framewor
         inputs = """InputFiles provider: summarized information on rule inputs, created by framework
 function, to be reused in script creator. Contains in particular merged compilation and linking
 dependencies.""",
+        deps_and_exports = """List consisting of unique entries in deps and their exports."""
     ),
 )
 
@@ -212,7 +213,16 @@ def cc_external_rule_impl(ctx, attrs):
     """
     lib_name = attrs.lib_name or ctx.attr.name
 
-    inputs = _define_inputs(attrs)
+    deps_and_exports = []
+    deps_and_exports_set = {}
+    for dep in attrs.deps:
+        for export in dep[ExportInfo].exports + [dep]:
+            export_id = ":".join(export.label.package, export.label.name)
+            if not deps_and_exports_set.get(export_id):
+                deps_and_exports_set[export_id] = 1
+                deps_and_exports += [export]
+
+    inputs = _define_inputs(attrs, deps_and_exports)
     outputs = _define_outputs(ctx, attrs, lib_name)
     out_cc_info = _define_out_cc_info(ctx, attrs, inputs, outputs)
 
@@ -259,7 +269,7 @@ def cc_external_rule_impl(ctx, attrs):
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
         "pushd $BUILD_TMPDIR",
-        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs)),
+        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps_and_exports = deps_and_exports)),
         "\n".join(attrs.make_commands),
         attrs.postfix_script or "",
         # replace references to the root directory when building ($BUILD_TMPDIR)
@@ -308,7 +318,7 @@ def cc_external_rule_impl(ctx, attrs):
         ExportInfo(exports = attrs.exports),
         ForeignCcDeps(artifacts = depset(
             [externally_built],
-            transitive = _get_transitive_artifacts(attrs.deps),
+            transitive = _get_transitive_artifacts(deps_and_exports),
         )),
         cc_common.create_cc_skylark_info(ctx = ctx),
         out_cc_info.compilation_info,
@@ -481,7 +491,7 @@ This directories should be copied into $EXT_BUILD_DEPS/lib-name as is, with all 
     ),
 )
 
-def _define_inputs(attrs):
+def _define_inputs(attrs, deps_and_exports):
     compilation_infos_all = []
     linking_infos_all = []
 
@@ -493,16 +503,6 @@ def _define_inputs(attrs):
     # $EXT_BUILD_DEPS/lib-name
     ext_build_dirs = []
     ext_build_dirs_set = {}
-
-    deps_and_exports = []
-    deps_and_exports_set = {}
-    for dep in attrs.deps:
-        for export in dep[ExportInfo].exports + [dep]:
-            export_id = export.label.package + export.label.name
-            if not deps_and_exports_set.get(export_id):
-                print("export_id: {}".format(export_id))
-                deps_and_exports_set[export_id] = 1
-                deps_and_exports += [export]
 
     for dep in deps_and_exports:
         external_deps = get_foreign_cc_dep(dep)
