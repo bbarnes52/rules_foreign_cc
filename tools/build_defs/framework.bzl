@@ -304,24 +304,25 @@ def cc_external_rule_impl(ctx, attrs):
         env = env,
     )
 
-    print("after `run_shell`")
-    print(installdir_copy.file)
     print(installdir_copy.file.basename)
-    print(installdir_copy.file.dirname)
     externally_built = ForeignCcArtifact(
         gen_dir = installdir_copy.file,
         bin_dir_name = attrs.out_bin_dir,
         lib_dir_name = attrs.out_lib_dir,
         include_dir_name = attrs.out_include_dir,
     )
+    artifacts = depset(
+        [externally_built],
+        transitive = _get_transitive_artifacts(deps_and_exports),
+    )
+    print("ALOHA")
+    for x in artifacts.to_list():
+        print(x)
     return [
         DefaultInfo(files = depset(direct = rule_outputs)),
         OutputGroupInfo(**_declare_output_groups(installdir_copy.file, outputs.out_binary_files)),
         ExportInfo(exports = attrs.exports),
-        ForeignCcDeps(artifacts = depset(
-            [externally_built],
-            transitive = _get_transitive_artifacts(deps_and_exports),
-        )),
+        ForeignCcDeps(artifacts = artifacts),
         cc_common.create_cc_skylark_info(ctx = ctx),
         out_cc_info.compilation_info,
         out_cc_info.linking_info,
@@ -337,13 +338,9 @@ def _declare_output_groups(installdir, outputs):
 def _get_transitive_artifacts(deps):
     artifacts = []
     for dep in deps:
-        print("Get transitive artifacts for {}".format(dep))
-        for export in dep[ExportInfo].exports + [dep]:
-            print("Export: {}".format(export))
-            foreign_dep = get_foreign_cc_dep(export)
-            if foreign_dep:
-                print("Foreign dep: {}".format(foreign_dep))
-                artifacts += [foreign_dep.artifacts]
+        foreign_dep = get_foreign_cc_dep(export)
+        if foreign_dep:
+            artifacts += [foreign_dep.artifacts]
     return artifacts
 
 def _print_env():
