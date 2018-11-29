@@ -338,7 +338,7 @@ def _declare_output_groups(installdir, outputs):
 def _get_transitive_artifacts(deps):
     artifacts = []
     for dep in deps:
-        foreign_dep = get_foreign_cc_dep(export)
+        foreign_dep = get_foreign_cc_dep(dep)
         if foreign_dep:
             artifacts += [foreign_dep.artifacts]
     return artifacts
