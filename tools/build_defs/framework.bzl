@@ -305,7 +305,7 @@ def cc_external_rule_impl(ctx, attrs):
     )
 
     print("after `run_shell`")
-
+    print(installdir_copy.file)
     externally_built = ForeignCcArtifact(
         gen_dir = installdir_copy.file,
         bin_dir_name = attrs.out_bin_dir,
