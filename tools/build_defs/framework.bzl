@@ -254,7 +254,7 @@ def cc_external_rule_impl(ctx, attrs):
         "mkdir -p $EXT_BUILD_DEPS",
         "mkdir -p $INSTALLDIR",
         _print_env(),
-        "trap \"{ rm -rf $BUILD_TMPDIR $EXT_BUILD_ROOT/bazel_foreign_cc_deps_" + lib_name + "; }\" EXIT",
+        #"trap \"{ rm -rf $BUILD_TMPDIR $EXT_BUILD_ROOT/bazel_foreign_cc_deps_" + lib_name + "; }\" EXIT",
         "\n".join(_copy_deps_and_tools(inputs)),
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
@@ -498,8 +498,8 @@ def _define_inputs(attrs):
     deps_and_exports_set = {}
     for dep in attrs.deps:
         for export in dep[ExportInfo].exports + [dep]:
-            if not deps_and_exports_set.get(export):
-                export_id = export.label.package + export.label.name
+            export_id = export.label.package + export.label.name
+            if not deps_and_exports_set.get(export_id):
                 print("export_id: {}".format(export_id))
                 deps_and_exports_set[export_id] = 1
                 deps_and_exports += [export]
