@@ -247,7 +247,7 @@ def cc_external_rule_impl(ctx, attrs):
         "export INSTALLDIR=$EXT_BUILD_ROOT/" + empty.file.dirname + "/" + lib_name,
     ]
 
-    transitive_deps = _get_transitive_artifacts(attrs.deps),
+    transitive_deps = _get_transitive_artifacts(attrs.deps)
 
     script_lines = [
         "echo \"\n{}\n\"".format(version_and_lib),
