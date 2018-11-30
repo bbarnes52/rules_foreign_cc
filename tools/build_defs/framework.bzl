@@ -262,7 +262,7 @@ def cc_external_rule_impl(ctx, attrs):
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
         "pushd $BUILD_TMPDIR",
-        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_deps.to_list())),
+        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_deps)),
         "\n".join(attrs.make_commands),
         attrs.postfix_script or "",
         # replace references to the root directory when building ($BUILD_TMPDIR)
@@ -308,8 +308,6 @@ def cc_external_rule_impl(ctx, attrs):
         [externally_built],
         transitive = transitive_deps,
     )
-    for x in artifacts.to_list():
-        print(x)
     return [
         DefaultInfo(files = depset(direct = rule_outputs)),
         OutputGroupInfo(**_declare_output_groups(installdir_copy.file, outputs.out_binary_files)),
