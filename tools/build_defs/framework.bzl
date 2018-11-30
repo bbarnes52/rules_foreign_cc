@@ -250,8 +250,7 @@ def cc_external_rule_impl(ctx, attrs):
     transitive_libs = []
     transitive_deps = _get_transitive_artifacts(attrs.deps)
     for dep in transitive_deps:
-        for artifact in dep.artifacts:
-            transitive_libs.append(artifact.file.basename)
+        transitive_libs.append(dep.file.basename)
 
 
     script_lines = [
