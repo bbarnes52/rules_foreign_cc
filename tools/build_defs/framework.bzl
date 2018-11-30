@@ -158,7 +158,7 @@ of the script, and allows to reuse the inputs structure, created by the framewor
         inputs = """InputFiles provider: summarized information on rule inputs, created by framework
 function, to be reused in script creator. Contains in particular merged compilation and linking
 dependencies.""",
-        deps_and_exports = """List consisting of unique entries in deps and their exports."""
+        deps = """List consisting of unique transitive dependencies."""
     ),
 )
 
@@ -213,16 +213,7 @@ def cc_external_rule_impl(ctx, attrs):
     """
     lib_name = attrs.lib_name or ctx.attr.name
 
-    deps_and_exports = []
-    deps_and_exports_set = {}
-    for dep in attrs.deps:
-        for export in dep[ExportInfo].exports + [dep]:
-            export_id = ":".join([export.label.package, export.label.name])
-            if not deps_and_exports_set.get(export_id):
-                deps_and_exports_set[export_id] = 1
-                deps_and_exports += [export]
-
-    inputs = _define_inputs(attrs, deps_and_exports)
+    inputs = _define_inputs(attrs)
     outputs = _define_outputs(ctx, attrs, lib_name)
     out_cc_info = _define_out_cc_info(ctx, attrs, inputs, outputs)
 
@@ -256,6 +247,8 @@ def cc_external_rule_impl(ctx, attrs):
         "export INSTALLDIR=$EXT_BUILD_ROOT/" + empty.file.dirname + "/" + lib_name,
     ]
 
+    transitive_deps = _get_transitive_artifacts(attrs.deps),
+
     script_lines = [
         "echo \"\n{}\n\"".format(version_and_lib),
         "set -e",
@@ -269,7 +262,7 @@ def cc_external_rule_impl(ctx, attrs):
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
         "pushd $BUILD_TMPDIR",
-        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps_and_exports = deps_and_exports)),
+        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_deps.to_list())),
         "\n".join(attrs.make_commands),
         attrs.postfix_script or "",
         # replace references to the root directory when building ($BUILD_TMPDIR)
@@ -313,9 +306,8 @@ def cc_external_rule_impl(ctx, attrs):
     )
     artifacts = depset(
         [externally_built],
-        transitive = _get_transitive_artifacts(deps_and_exports),
+        transitive = transitive_deps,
     )
-    print("ALOHA")
     for x in artifacts.to_list():
         print(x)
     return [
@@ -490,7 +482,7 @@ This directories should be copied into $EXT_BUILD_DEPS/lib-name as is, with all 
     ),
 )
 
-def _define_inputs(attrs, deps_and_exports):
+def _define_inputs(attrs):
     compilation_infos_all = []
     linking_infos_all = []
 
@@ -503,7 +495,7 @@ def _define_inputs(attrs, deps_and_exports):
     ext_build_dirs = []
     ext_build_dirs_set = {}
 
-    for dep in deps_and_exports:
+    for dep in attrs.deps:
         external_deps = get_foreign_cc_dep(dep)
 
         linking_infos_all += [dep[CcLinkingInfo]]
