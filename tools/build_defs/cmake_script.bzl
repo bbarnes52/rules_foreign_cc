@@ -61,7 +61,7 @@ def create_cmake_script(
 
 # From CMake documentation: ;-list of directories specifying installation prefixes to be searched...
 def _merge_prefix_path(user_cache, deps):
-    cmake_prefix_paths = ";".join(["$EXT_BUILD_DEPS/{}".format(dep.file.basename) for dep in deps])
+    cmake_prefix_paths = ";".join(["$EXT_BUILD_DEPS/{}".format(dep) for dep in deps])
     user_prefix = user_cache.get("CMAKE_PREFIX_PATH")
     if user_prefix != None:
         # remove it, it is gonna be merged specifically

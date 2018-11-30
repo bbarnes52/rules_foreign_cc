@@ -247,7 +247,12 @@ def cc_external_rule_impl(ctx, attrs):
         "export INSTALLDIR=$EXT_BUILD_ROOT/" + empty.file.dirname + "/" + lib_name,
     ]
 
+    transitive_libs = []
     transitive_deps = _get_transitive_artifacts(attrs.deps)
+    for dep in transitive_deps:
+        for artifact in dep.artifacts:
+            transitive_libs.append(artifact.file.basename)
+
 
     script_lines = [
         "echo \"\n{}\n\"".format(version_and_lib),
@@ -262,7 +267,7 @@ def cc_external_rule_impl(ctx, attrs):
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
         "pushd $BUILD_TMPDIR",
-        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_deps)),
+        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_libs)),
         "\n".join(attrs.make_commands),
         attrs.postfix_script or "",
         # replace references to the root directory when building ($BUILD_TMPDIR)
