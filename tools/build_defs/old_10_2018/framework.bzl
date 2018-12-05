@@ -150,6 +150,7 @@ of the script, and allows to reuse the inputs structure, created by the framewor
         inputs = """InputFiles provider: summarized information on rule inputs, created by framework
 function, to be reused in script creator. Contains in particular merged compilation and linking
 dependencies.""",
+        deps = """List consisting of unique transitive dependencies.""",
     ),
 )
 
@@ -254,6 +255,12 @@ def cc_external_rule_impl(ctx, attrs):
         "fi",
         "}",
     ]
+    
+    transitive_libs = []
+    transitive_deps = _get_transitive_artifacts(attrs.deps)
+    for dep in transitive_deps:
+        for artifact in dep.to_list():
+            transitive_libs.append(artifact.gen_dir.basename)
 
     script_lines = [
         "echo \"\n{}\n\"".format(version_and_lib),
@@ -269,7 +276,7 @@ def cc_external_rule_impl(ctx, attrs):
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
         "pushd $BUILD_TMPDIR",
-        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs)),
+        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_deps)),
         "\n".join(attrs.make_commands),
         attrs.postfix_script or "",
         # replace references to the root directory when building ($BUILD_TMPDIR)
