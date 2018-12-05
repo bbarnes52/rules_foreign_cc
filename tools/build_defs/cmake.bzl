@@ -54,6 +54,7 @@ def _create_configure_script(configureParameters):
         no_toolchain_file,
         dict(ctx.attr.cache_entries),
         dict(ctx.attr.env_vars),
+        configureParameters.deps,
         ctx.attr.cmake_options,
         is_debug_mode(ctx),
     )
