@@ -266,6 +266,7 @@ def cc_external_rule_impl(ctx, attrs):
 
     script_lines = [
         "echo \"\n{}\n\"".format(version_and_lib),
+        "cmake --version",
         "set -e",
         "source " + shell_utils,
         "\n".join(define_variables),
