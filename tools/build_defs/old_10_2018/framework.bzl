@@ -255,12 +255,14 @@ def cc_external_rule_impl(ctx, attrs):
         "fi",
         "}",
     ]
-    
-    transitive_libs = []
-    transitive_deps = _get_transitive_artifacts(attrs.deps)
-    for dep in transitive_deps:
+
+    transitive_deps = []
+    transitive_dep_set = {}
+    for dep in _get_transitive_artifacts(attrs.deps):
         for artifact in dep.to_list():
-            transitive_libs.append(artifact.gen_dir.basename)
+            if not transitive_dep_set.get(artifact.gen_dir):
+                transitive_dep_set[artifact.gen_dir] = 1
+                transitive_deps.append(artifact.gen_dir.basename)
 
     script_lines = [
         "echo \"\n{}\n\"".format(version_and_lib),
@@ -276,7 +278,7 @@ def cc_external_rule_impl(ctx, attrs):
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
         "pushd $BUILD_TMPDIR",
-        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_libs)),
+        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_deps)),
         "\n".join(attrs.make_commands),
         attrs.postfix_script or "",
         # replace references to the root directory when building ($BUILD_TMPDIR)
