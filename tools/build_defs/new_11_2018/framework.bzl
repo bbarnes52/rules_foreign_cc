@@ -244,7 +244,7 @@ def cc_external_rule_impl(ctx, attrs):
         "local ecode=$?",
         "if [ $ecode -eq 0 ]; then",
         "echo \"rules_foreign_cc: Cleaning temp directories\"",
-        "rm -rf $BUILD_TMPDIR $EXT_BUILD_ROOT/bazel_foreign_cc_deps_" + lib_name,
+        #"rm -rf $BUILD_TMPDIR $EXT_BUILD_ROOT/bazel_foreign_cc_deps_" + lib_name,
         "else",
         "echo \"\"",
         "echo \"rules_foreign_cc: Keeping temp build directory $BUILD_TMPDIR\
