@@ -8,6 +8,7 @@ load(
 )
 load("//tools/build_defs:detect_root.bzl", "detect_root")
 
+
 def _boost_build(ctx):
     attrs = create_attrs(
         ctx.attr,
