@@ -150,7 +150,6 @@ of the script, and allows to reuse the inputs structure, created by the framewor
         inputs = """InputFiles provider: summarized information on rule inputs, created by framework
 function, to be reused in script creator. Contains in particular merged compilation and linking
 dependencies.""",
-        deps = """List consisting of unique transitive dependencies.""",
     ),
 )
 
@@ -244,7 +243,7 @@ def cc_external_rule_impl(ctx, attrs):
         "local ecode=$?",
         "if [ $ecode -eq 0 ]; then",
         "echo \"rules_foreign_cc: Cleaning temp directories\"",
-        #"rm -rf $BUILD_TMPDIR $EXT_BUILD_ROOT/bazel_foreign_cc_deps_" + lib_name,
+        "rm -rf $BUILD_TMPDIR $EXT_BUILD_ROOT/bazel_foreign_cc_deps_" + lib_name,
         "else",
         "echo \"\"",
         "echo \"rules_foreign_cc: Keeping temp build directory $BUILD_TMPDIR\
@@ -255,16 +254,9 @@ def cc_external_rule_impl(ctx, attrs):
         "fi",
         "}",
     ]
-    
-    transitive_libs = []
-    transitive_deps = _get_transitive_artifacts(attrs.deps)
-    for dep in transitive_deps:
-        for artifact in dep.to_list():
-            transitive_libs.append(artifact.gen_dir.basename)
 
     script_lines = [
         "echo \"\n{}\n\"".format(version_and_lib),
-        "cmake --version",
         "set -e",
         "source " + shell_utils,
         "\n".join(define_variables),
@@ -278,7 +270,7 @@ def cc_external_rule_impl(ctx, attrs):
         # replace placeholder with the dependencies root
         "define_absolute_paths $EXT_BUILD_DEPS $EXT_BUILD_DEPS",
         "pushd $BUILD_TMPDIR",
-        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs, deps = transitive_libs)),
+        attrs.create_configure_script(ConfigureParameters(ctx = ctx, attrs = attrs, inputs = inputs)),
         "\n".join(attrs.make_commands),
         attrs.postfix_script or "",
         # replace references to the root directory when building ($BUILD_TMPDIR)
@@ -328,9 +320,9 @@ def cc_external_rule_impl(ctx, attrs):
         )),
         cc_common.create_cc_skylark_info(ctx = ctx),
         CcInfo(
-            compilation_context = out_cc_info.compilation_context,
-            linking_context = out_cc_info.linking_context,
-        ),
+                compilation_context = out_cc_info.compilation_context,
+                linking_context = out_cc_info.linking_context,
+            ),
     ]
 
 def _declare_output_groups(installdir, outputs):
@@ -577,8 +569,6 @@ def _define_out_cc_info(ctx, attrs, inputs, outputs):
         ctx = ctx,
         headers = depset([outputs.out_include_dir]),
         system_includes = depset([outputs.out_include_dir.path]),
-        includes = depset([]),
-        quote_includes = depset([]),
         defines = depset(attrs.defines),
     )
     linking_info = create_linking_info(ctx, attrs.linkopts, outputs.libraries)
