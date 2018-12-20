@@ -320,9 +320,9 @@ def cc_external_rule_impl(ctx, attrs):
         )),
         cc_common.create_cc_skylark_info(ctx = ctx),
         CcInfo(
-            compilation_context = out_cc_info.compilation_context,
-            linking_context = out_cc_info.linking_context,
-        ),
+                compilation_context = out_cc_info.compilation_context,
+                linking_context = out_cc_info.linking_context,
+            ),
     ]
 
 def _declare_output_groups(installdir, outputs):
@@ -569,8 +569,6 @@ def _define_out_cc_info(ctx, attrs, inputs, outputs):
         ctx = ctx,
         headers = depset([outputs.out_include_dir]),
         system_includes = depset([outputs.out_include_dir.path]),
-        includes = depset([]),
-        quote_includes = depset([]),
         defines = depset(attrs.defines),
     )
     linking_info = create_linking_info(ctx, attrs.linkopts, outputs.libraries)
